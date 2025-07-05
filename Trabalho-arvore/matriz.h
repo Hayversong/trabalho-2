@@ -25,7 +25,7 @@ No *comando_cd(No *no_atual, const char *nome_diretorio); // Implementa o comand
 void comando_search(No *raiz, const char *argumento);    // Implementa o comando 'search' (buscar arquivo/pasta)
 void comando_rm(No *no_atual, const char *nome_alvo);    // Implementa o comando 'rm' (remover pasta/arquivo)
 void comando_list(No *no_atual);                          // Implementa o comando 'list' (listar componentes da pasta atual)
-void comando_mkdir(No *no_atual, const char *nome_pasta); // Implementa o comando 'mkdir' (criar nova pasta)
+void comando_mkdir(No *no_atual, char *nome);            // Implementa o comando 'mkdir' (criar nova pasta)
 void comando_clear();                                     // Implementa o comando 'clear' (limpar a tela)
 void comando_help();                                      // Implementa o comando 'help' (exibir ajuda)
 void comando_exit(No *raiz);                              // Implementa o comando 'exit' (encerrar o programa e liberar memória)

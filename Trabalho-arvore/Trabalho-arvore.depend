@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1751744629 source:c:\users\fernando buligon\documents\aed\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"matriz.h"
+
+1751742000 c:\users\fernando buligon\documents\aed\matriz.h
+
+1751743907 source:c:\users\fernando buligon\documents\aed\matriz.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"matriz.h"
+

@@ -1,0 +1,5 @@
+Documentos/relatorio.txt
+Documentos/aed/main.c
+Documentos/aed/matriz.c
+Imagens/foto1.png
+Imagens/foto2.jpg

@@ -4,21 +4,21 @@
 
 #include "matriz.h"
 
-// variável global para manter a referência ao nó raiz da árvore
-// é importante ter acesso à raiz para funções como 'search' ou 'exit'
+// variavel global para manter a referencia ao no raiz da arvore
+// e importante ter acesso a raiz para funcoes como 'search' ou 'exit'
 No *raiz_do_sistema = NULL;
 
-//funções de gerenciamento da arvore
+// funcoes de gerenciamento da arvore
 No *criar_no(const char *nome, TipoNo tipo) {
     No *novo_no = (No *)malloc(sizeof(No));
     if (novo_no == NULL) {
-        perror("erro ao alocar memoria para o nó");
+        perror("erro ao alocar memoria para o no");
         return NULL;
     }
 
     novo_no->nome = strdup(nome);
     if (novo_no->nome == NULL) {
-        perror("erro ao alocar memória para o nome do nó");
+        perror("erro ao alocar memoria para o nome do no");
         free(novo_no);
         return NULL;
     }
@@ -39,25 +39,20 @@ void adicionar_filho(No *pai, No *filho) {
 
     filho->pai = pai;
 
-    // se o pai não tem filhos, o novo filho se torna o primeiro filho
     if (pai->primeiro_filho == NULL) {
         pai->primeiro_filho = filho;
     } else {
-        // encontra o último irmão na lista de filhos do pai
         No *irmao_atual = pai->primeiro_filho;
         while (irmao_atual->proximo_irmao != NULL) {
             irmao_atual = irmao_atual->proximo_irmao;
         }
-        irmao_atual->proximo_irmao = filho; // adiciona o novo filho ao final da lista
+        irmao_atual->proximo_irmao = filho;
     }
 }
 
 void liberar_arvore(No *no) {
-    if (no == NULL) {
-        return;
-    }
+    if (no == NULL) return;
 
-    // libera os filhos primeiro (recursivamente)
     No *filho_atual = no->primeiro_filho;
     while (filho_atual != NULL) {
         No *proximo_filho = filho_atual->proximo_irmao;
@@ -65,39 +60,32 @@ void liberar_arvore(No *no) {
         filho_atual = proximo_filho;
     }
 
-    // libera o nome do nó
     free(no->nome);
-    // libera o próprio nó
     free(no);
 }
 
-//Funções auxiliares
+// Funcoes auxiliares
 No *encontrar_filho(No *pai, const char *nome, TipoNo filtro_tipo) {
-    if (pai == NULL || nome == NULL) {
-        return NULL;
-    }
+    if (pai == NULL || nome == NULL) return NULL;
 
     No *filho_atual = pai->primeiro_filho;
     while (filho_atual != NULL) {
         if (strcmp(filho_atual->nome, nome) == 0) {
-            // Se não há filtro de tipo ou o tipo corresponde, retorna
-            if (filtro_tipo == TIPO_DIRETORIO || filtro_tipo == TIPO_ARQUIVO) { // Assume que TipoNo pode ser apenas 0 ou 1
-                 if (filho_atual->tipo == filtro_tipo) {
+            if (filtro_tipo == TIPO_DIRETORIO || filtro_tipo == TIPO_ARQUIVO) {
+                if (filho_atual->tipo == filtro_tipo) {
                     return filho_atual;
-                 }
-            } else { // não há filtro de tipo, retorna o primeiro que encontrar
+                }
+            } else {
                 return filho_atual;
             }
         }
         filho_atual = filho_atual->proximo_irmao;
     }
-    return NULL; // filho não encontrado
+    return NULL;
 }
 
 No *obter_raiz(No *no) {
-    if (no == NULL) {
-        return NULL;
-    }
+    if (no == NULL) return NULL;
     while (no->pai != NULL) {
         no = no->pai;
     }
@@ -105,21 +93,13 @@ No *obter_raiz(No *no) {
 }
 
 char *obter_caminho_completo(No *no) {
-    if (no == NULL) {
-        return strdup(""); // Retorna uma string vazia para nó nulo
-    }
+    if (no == NULL) return strdup("");
 
-    // Caso base: é a raiz
-    if (no->pai == NULL) {
-        return strdup("/"); // Raiz é representada por "/"
-    }
+    if (no->pai == NULL) return strdup("/");
 
     char *caminho_pai = obter_caminho_completo(no->pai);
-    if (caminho_pai == NULL) {
-        return NULL; // Erro na recursão
-    }
+    if (caminho_pai == NULL) return NULL;
 
-    //calcula o tamanho necessário para o caminho completo
     size_t tamanho_caminho = strlen(caminho_pai) + 1 + strlen(no->nome) + 1;
     char *caminho_completo = (char *)malloc(tamanho_caminho);
     if (caminho_completo == NULL) {
@@ -128,23 +108,16 @@ char *obter_caminho_completo(No *no) {
         return NULL;
     }
 
-    //concatena o caminho do pai com o nome do nó atual
     strcpy(caminho_completo, caminho_pai);
-    if (strcmp(caminho_completo, "/") != 0) { // Evita adicionar "//" se o pai for a raiz
+    if (strcmp(caminho_completo, "/") != 0) {
         strcat(caminho_completo, "/");
-    } else if (no->pai->pai == NULL && strcmp(no->nome, "/") != 0) { // Se o pai é a raiz e o nó atual não é a própria raiz
-         // Não faz nada, já tem "/"
     }
 
-
     strcat(caminho_completo, no->nome);
-
     free(caminho_pai);
-
     return caminho_completo;
 }
-
-//Função de Leitura de Arquivo
+// Funcao de leitura de arquivo
 No *ler_arquivo_in_txt(const char *nome_arquivo) {
     FILE *arquivo = fopen(nome_arquivo, "r");
     if (arquivo == NULL) {
@@ -152,21 +125,18 @@ No *ler_arquivo_in_txt(const char *nome_arquivo) {
         return NULL;
     }
 
-    // Cria o nó raiz do sistema (e.g., "/")
     No *raiz = criar_no("/", TIPO_DIRETORIO);
     if (raiz == NULL) {
         fclose(arquivo);
         return NULL;
     }
-    raiz_do_sistema = raiz; // Define a raiz global
+    raiz_do_sistema = raiz;
 
     char linha[1024];
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-        linha[strcspn(linha, "\n")] = 0;    // Remove o '\n' do final da linha, se existir
+        linha[strcspn(linha, "\n")] = 0;
 
-        if (strlen(linha) == 0) {
-            continue;
-        }
+        if (strlen(linha) == 0) continue;
 
         char *token;
         char *copia_linha = strdup(linha);
@@ -182,16 +152,11 @@ No *ler_arquivo_in_txt(const char *nome_arquivo) {
         while ((token = strtok(ptr, "/")) != NULL) {
             ptr = NULL;
 
-            // verifica se é o último token da linha
-            // para saber se é um arquivo ou um diretório no final
             int eh_ultimo_token = 0;
             if (strtok(NULL, "/") == NULL) {
                 eh_ultimo_token = 1;
             }
-            // strcspn(token, ".") > 0 verifica se há um '.' no nome do token,
-            // e strcspn(token, ".") < strlen(token) garante que não é o primeiro caractere.
             int possui_extensao = (strchr(token, '.') != NULL && strchr(token, '.') != token);
-
 
             No *proximo_no = encontrar_filho(no_atual, token, (TipoNo)-1);
 
@@ -205,7 +170,7 @@ No *ler_arquivo_in_txt(const char *nome_arquivo) {
 
                 proximo_no = criar_no(token, tipo_novo_no);
                 if (proximo_no == NULL) {
-                    fprintf(stderr, "erro: falha ao criar nó para '%s'.\n", token);
+                    fprintf(stderr, "erro: falha ao criar no para '%s'.\n", token);
                     free(copia_linha);
                     liberar_arvore(raiz);
                     fclose(arquivo);
@@ -224,7 +189,7 @@ No *ler_arquivo_in_txt(const char *nome_arquivo) {
 
 No *comando_cd(No *no_atual, const char *nome_diretorio) {
     if (no_atual == NULL) {
-        fprintf(stderr, "erro: Nó atual invalido.\n");
+        fprintf(stderr, "erro: No atual invalido.\n");
         return NULL;
     }
 
@@ -232,7 +197,7 @@ No *comando_cd(No *no_atual, const char *nome_diretorio) {
         if (no_atual->pai != NULL) {
             return no_atual->pai;
         } else {
-            printf("já esta na raiz do sistema.\n");
+            printf("ja esta na raiz do sistema.\n");
             return no_atual;
         }
     } else if (strcmp(nome_diretorio, "/") == 0) {
@@ -244,10 +209,10 @@ No *comando_cd(No *no_atual, const char *nome_diretorio) {
     if (diretorio_alvo != NULL) {
         return diretorio_alvo;
     } else {
-        printf("diretório '%s' não encontrado. alternativas:\n", nome_diretorio);
+        printf("diretorio '%s' nao encontrado. alternativas:\n", nome_diretorio);
         int encontrou_alternativa = 0;
         No *filho_atual = no_atual->primeiro_filho;
-        while(filho_atual != NULL) {
+        while (filho_atual != NULL) {
             if (filho_atual->tipo == TIPO_DIRETORIO && strstr(filho_atual->nome, nome_diretorio) == filho_atual->nome) {
                 printf(" - %s\n", filho_atual->nome);
                 encontrou_alternativa = 1;
@@ -258,14 +223,13 @@ No *comando_cd(No *no_atual, const char *nome_diretorio) {
             printf("nenhuma alternativa encontrada.\n");
         }
         return no_atual;
+    }
 }
 
 void comando_search(No *raiz, const char *argumento) {
-    if (raiz == NULL || argumento == NULL || strlen(argumento) == 0) {
-        return;
-    }
+    if (raiz == NULL || argumento == NULL || strlen(argumento) == 0) return;
 
-    static int encontrou = 0; // Flag para saber se encontrou algo na busca atual
+    static int encontrou = 0;
 
     if (strcmp(raiz->nome, argumento) == 0) {
         char *caminho = obter_caminho_completo(raiz);
@@ -276,7 +240,6 @@ void comando_search(No *raiz, const char *argumento) {
         }
     }
 
-    // Chamada recursiva para os filhos
     No *filho_atual = raiz->primeiro_filho;
     while (filho_atual != NULL) {
         comando_search(filho_atual, argumento);
@@ -284,7 +247,7 @@ void comando_search(No *raiz, const char *argumento) {
     }
 
     if (raiz == raiz_do_sistema && !encontrou) {
-        printf(" '%s' não encontrado.\n", argumento);
+        printf(" '%s' nao encontrado.\n", argumento);
     }
     if (raiz == raiz_do_sistema) {
         encontrou = 0;
@@ -293,7 +256,7 @@ void comando_search(No *raiz, const char *argumento) {
 
 void comando_rm(No *no_atual, const char *nome_alvo) {
     if (no_atual == NULL || nome_alvo == NULL) {
-        fprintf(stderr, "erro: parâmetros inválidos para rm.\n");
+        fprintf(stderr, "erro: parametros invalidos para rm.\n");
         return;
     }
 
@@ -301,7 +264,6 @@ void comando_rm(No *no_atual, const char *nome_alvo) {
     No *anterior = NULL;
     No *atual = no_atual->primeiro_filho;
 
-    // Encontra o nó a ser removido e seu irmão anterior
     while (atual != NULL) {
         if (strcmp(atual->nome, nome_alvo) == 0) {
             no_a_remover = atual;
@@ -312,16 +274,13 @@ void comando_rm(No *no_atual, const char *nome_alvo) {
     }
 
     if (no_a_remover == NULL) {
-        printf("'%s' não encontrado na pasta atual.\n", nome_alvo);
+        printf("'%s' nao encontrado na pasta atual.\n", nome_alvo);
         return;
     }
 
-    // Remove o nó da lista de filhos do pai
     if (anterior == NULL) {
-        // O nó a ser removido é o primeiro filho
         no_atual->primeiro_filho = no_a_remover->proximo_irmao;
     } else {
-        // O nó a ser removido está no meio ou no final da lista
         anterior->proximo_irmao = no_a_remover->proximo_irmao;
     }
 
@@ -331,7 +290,7 @@ void comando_rm(No *no_atual, const char *nome_alvo) {
 
 void comando_list(No *no_atual) {
     if (no_atual == NULL) {
-        fprintf(stderr, "erro: nó atual nulo para listar.\n");
+        fprintf(stderr, "erro: no atual nulo para listar.\n");
         return;
     }
 
@@ -340,17 +299,56 @@ void comando_list(No *no_atual) {
         return;
     }
 
-    printf("Conteúdo de '%s':\n", no_atual->nome);
+    printf("Conteudo de '%s':\n", no_atual->nome);
     No *filho_atual = no_atual->primeiro_filho;
     while (filho_atual != NULL) {
-        printf("%s %s\n", (filho_atual->tipo == TIPO_DIRETORIO) ? "[DIR]" : "[ARQ]", filho_atual->nome);
+        printf("%s %s\n", (filho_atual->tipo == TIPO_DIRETORIO) ? "[D]" : "[A]", filho_atual->nome);
         filho_atual = filho_atual->proximo_irmao;
     }
 }
 
 void comando_exit(No *raiz) {
-    printf("encerrando o programa. Liberando memória...\n");
+    printf("encerrando o programa. Liberando memoria...\n");
     liberar_arvore(raiz);// Libera toda a árvore
-    printf("memória liberada. encerrado!\n");
+    printf("memoria liberada. encerrado!\n");
     exit(0);
 }
+
+void comando_clear() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void comando_mkdir(No *no_atual, char *nome) {
+    No *filho = no_atual->primeiro_filho;
+    while (filho != NULL) {
+        if (strcmp(filho->nome, nome) == 0) {
+            printf("mkdir: diretorio '%s' ja existe\n", nome);
+            return;
+        }
+        filho = filho->proximo_irmao;
+    }
+
+    No *novo = criar_no(nome, TIPO_DIRETORIO);
+    novo->pai = no_atual;
+
+    novo->proximo_irmao = no_atual->primeiro_filho;
+    no_atual->primeiro_filho = novo;
+}
+
+void comando_help() {
+    printf("Comandos disponiveis:\n");
+    printf("cd <dir>       - entra no diretorio <dir>\n");
+    printf("cd ..          - volta para o diretorio pai\n");
+    printf("mkdir <nome>   - cria um novo diretorio\n");
+    printf("rm <nome>      - remove arquivo ou diretorio vazio\n");
+    printf("list           - lista arquivos e diretorios\n");
+    printf("search <nome>  - procura arquivo ou diretorio a partir do atual\n");
+    printf("clear          - limpa a tela\n");
+    printf("help           - mostra esta mensagem\n");
+    printf("exit           - sai do programa\n");
+}
+

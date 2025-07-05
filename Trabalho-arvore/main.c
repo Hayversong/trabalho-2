@@ -19,7 +19,7 @@ int main() {
     }
 
     printf("bem-vindo ao simulador de sistema de arquivos\n");
-    printf("digite 'help' para ver os comandos disponíveis\n");
+    printf("digite 'help' para ver os comandos disponiveis\n");
 
     while (1) {
         // exibe o prompt com o caminho atual
@@ -81,9 +81,8 @@ int main() {
                 comando_clear();
             }else if (strcmp(cmd_token, "help") == 0) {
                 comando_help();
-            else if (strcmp(cmd_token, "exit") == 0) {
+            }else if (strcmp(cmd_token, "exit") == 0) {
                 comando_exit(raiz_do_sistema);
-            // exit(0) é chamado dentro de comando_exit, então não é necessário mais nada aqui
         }   else {
             printf("comando desconhecido: '%s'. digite 'help' para ver os comandos\n", cmd_token);
         }
